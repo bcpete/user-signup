@@ -34,7 +34,7 @@ header="""
     <head>
         <title>Signup</title>
             <style type="text/css">
-                .error{
+                p{
                     color:red;
                 }
             </style>
@@ -121,7 +121,7 @@ class MainHandler(webapp2.RequestHandler):
 
         if is_error:
             content = header + form + error + footer
-            self.response.out.write(error)
+            self.response.out.write(content)
         else:
             self.redirect('/welcome?username=' + username)
 
