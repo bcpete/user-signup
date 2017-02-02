@@ -28,26 +28,21 @@ EMAIL_RE = re.compile(r"^[\S]+@[\S]+.[\S]+$")
 def valid_email(email):
     return not email or EMAIL_RE.match(email)
 
-header="""
+form = """
 <!DOCTYPE html>
 <html>
     <head>
         <title>Signup</title>
             <style type="text/css">
-                p{
+               span.error {
                     color:red;
                 }
             </style>
     </head>
     <body>
         <h1>Signup</h1>
-    """
-footer="""
     </body>
     </html>
-    """
-
-form = """
         <form method="post">
             <table>
                 <tbody>
@@ -56,7 +51,7 @@ form = """
                             <label for="username">Username</label>
                         </td>
                         <td>
-                            <input name="username" type="text" required>
+                            <input name="username" type="text" value = %(username_input)s required><span class="error">%(username_error)s</span>
                         </td>
                     </tr>
                     <tr>
@@ -64,7 +59,7 @@ form = """
                             <label for="password">Password</label>
                         </td>
                         <td>
-                            <input name="password" type="password" value required>
+                            <input name="password" type="password" value required><span class="error">%(password_error)s</span>
                         </td>
                     </tr>
                     <tr>
@@ -72,7 +67,7 @@ form = """
                             <label for="verify">Verify Password</label>
                         </td>
                         <td>
-                            <input name="verify" type="password" value required>
+                            <input name="verify" type="password" value required><span class="error">%(verify_error)s</span>
                         </td>
                     </tr>
                     <tr>
@@ -80,7 +75,7 @@ form = """
                             <label for="email">Email (optional)</label>
                         </td>
                         <td>
-                            <input name="email" type="email" value>
+                            <input name="email" type="email" value= %(email_input)s><span class="error">%(email_error)s</span>
                         </td>
                     </tr>
                 </tbody>
@@ -90,38 +85,54 @@ form = """
                     """
 
 
-
 class MainHandler(webapp2.RequestHandler):
+    def write_form(self, username_error="",password_error="",verify_error="",email_error="",username_input="",email_input=""):
+        self.response.out.write(form % {"username_error" : username_error,
+                                        "password_error" : password_error,
+                                        "verify_error"   : verify_error,
+                                        "email_error"    : email_error,
+                                        "username_input" : username_input,
+                                        "email_input"    : email_input})
     def get(self):
-
-        content = header + form + footer
-        self.response.write(content)
+        self.write_form()
 
     def post(self):
-        username  = self.request.get("username")
-        password  = self.request.get("password")
-        verify    = self.request.get("verify")
-        email     = self.request.get("email")
-        is_error = False
+        username            = self.request.get("username")
+        password            = self.request.get("password")
+        verify              = self.request.get("verify")
+        email               = self.request.get("email")
+        have_username_error = False
+        have_password_error = False
+        have_verify_error   = False
+        have_email_error    = False
+        error               = False
+        user_error_text     = ""
+        pass_error_text     = ""
+        verify_error_text   = ""
+        email_error_text    = ""
 
         if not valid_username(username):
-            error = "<p> Please choose a valid username </p>"
-            is_error = True
+            have_username_error = True
+            error               = True
+            user_error_text="Please enter a valid username"
 
         if not valid_password(password):
-            error = "<p> Please choose a valid password</p>"
             is_error = True
+            error    = True
+            pass_error_text="Please enter a valid password"
+
         elif password != verify:
-            error = "<p> Passwords do not match. </p>"
             is_error = True
+            error    = True
+            verify_error_text="Passwords do not match"
 
         if not valid_email(email):
-            error = '<p> Please enter a valid email address </p>'
             is_error = True
+            error    = True
+            email_error_text="Please enter a valid email address"
 
-        if is_error:
-            content = header + form + error + footer
-            self.response.out.write(content)
+        if error == True:
+            self.write_form(username_error=user_error_text,password_error=pass_error_text,verify_error=verify_error_text,email_error=email_error_text,username_input=username,email_input=email)
         else:
             self.redirect('/welcome?username=' + username)
 
@@ -149,7 +160,6 @@ class Welcome(webapp2.RequestHandler):
         """
         content = new_header + new_footer
         self.response.write(content)
-
 
 
 app = webapp2.WSGIApplication([
