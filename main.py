@@ -51,7 +51,7 @@ form = """
                             <label for="username">Username</label>
                         </td>
                         <td>
-                            <input name="username" type="text" value = %(username_input)s required><span class="error">%(username_error)s</span>
+                            <input name="username" type="text" value ="%(username_input)s"required><span class="error">%(username_error)s</span>
                         </td>
                     </tr>
                     <tr>
