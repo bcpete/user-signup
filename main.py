@@ -101,10 +101,6 @@ class MainHandler(webapp2.RequestHandler):
         password            = self.request.get("password")
         verify              = self.request.get("verify")
         email               = self.request.get("email")
-        have_username_error = False
-        have_password_error = False
-        have_verify_error   = False
-        have_email_error    = False
         error               = False
         user_error_text     = ""
         pass_error_text     = ""
@@ -112,22 +108,18 @@ class MainHandler(webapp2.RequestHandler):
         email_error_text    = ""
 
         if not valid_username(username):
-            have_username_error = True
             error               = True
             user_error_text="Please enter a valid username"
 
         if not valid_password(password):
-            is_error = True
             error    = True
             pass_error_text="Please enter a valid password"
 
         elif password != verify:
-            is_error = True
             error    = True
             verify_error_text="Passwords do not match"
 
         if not valid_email(email):
-            is_error = True
             error    = True
             email_error_text="Please enter a valid email address"
 
